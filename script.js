@@ -194,17 +194,19 @@ loadStorageBtn.addEventListener('click', () => {
   } 
   else{
       activeToolEl.textContent = 'No canvas found';
+      setTimeout(switchToBrush, 1500);
   }
 
 });
 
-// // Clear Local Storage
-// clearStorageBtn.addEventListener('click', () => {
-
-//   // Active Tool
-//   activeToolEl.textContent = 'Local Storage Cleared';
-//   setTimeout(switchToBrush, 1500);
-// });
+// Clear Local Storage
+clearStorageBtn.addEventListener('click', () => {
+    //localStorage.clear();  wrong method as it will erase all the data in the local storage of all the projevcts in the same domain
+    localStorage.removeItem('savedCanvas');
+  // Active Tool
+  activeToolEl.textContent = 'Local Storage Cleared';
+  setTimeout(switchToBrush, 1500);
+});
 
 // // Download Image
 // downloadBtn.addEventListener('click', () => {
