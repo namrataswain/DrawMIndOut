@@ -11,7 +11,8 @@ const loadStorageBtn = document.getElementById('load-storage');
 const clearStorageBtn = document.getElementById('clear-storage');
 const downloadBtn = document.getElementById('download');
 const { body } = document;
-
+const socket = io.connect("http://localhost:5000");
+//const socket = io.connect("http://localhost:5000");
 // Global Variables
 const canvas = document.createElement('canvas');
 canvas.id = 'canvas';
@@ -23,6 +24,7 @@ let isEraser = false;
 let isMouseDown = false;
 let drawnArray = [];
 
+
 // Formatting Brush Size
 function displayBrushSize() {
     if (brushSlider.value < 10)
@@ -30,13 +32,13 @@ function displayBrushSize() {
     else {
       brushSize.textContent = brushSlider.value;
     }
-
 }
 
 // Setting Brush Size
 brushSlider.addEventListener('change', () => {
    currentSize = brushSlider.value;
    displayBrushSize()
+   
 });
 
 // Setting Brush Color
@@ -44,7 +46,6 @@ brushColorBtn.addEventListener('change', () => {
    isEraser = false;
    
    currentColor = `#${brushColorBtn.value}`;
-
 });
 
 // Setting Background Color
@@ -52,6 +53,7 @@ bucketColorBtn.addEventListener('change', () => {
     bucketColor = `#${bucketColorBtn.value}`;
     createCanvas();
     restoreCanvas();
+   
 });
 
 // // Eraser
@@ -87,7 +89,7 @@ function createCanvas() {
   context.fillRect(0, 0, canvas.width, canvas.height);
   body.appendChild(canvas);
   switchToBrush()
-
+   
 }
 
 // Clear Canvas
@@ -125,7 +127,7 @@ function storeDrawn(x, y, size, color, erase) {
     color,
     erase,
   };
-  console.log(line);
+  //console.log(line);
   drawnArray.push(line);
 }
 
@@ -142,19 +144,21 @@ function getMousePosition(event) {
 canvas.addEventListener('mousedown', (event) => {
   isMouseDown = true;
   const currentPosition = getMousePosition(event);
-  console.log('mouse is clicked', currentPosition);
+  //console.log('mouse is clicked', currentPosition);
   context.moveTo(currentPosition.x, currentPosition.y);
   context.beginPath();
   context.lineWidth = currentSize;
   context.lineCap = 'round';
   context.strokeStyle = currentColor;
+   //socket.emit("mousedown", currentPosition);
 });
 
 // Mouse Move
 canvas.addEventListener('mousemove', (event) => {
   if (isMouseDown) {
     const currentPosition = getMousePosition(event);
-    console.log('mouse is moving', currentPosition);
+    console.log('mouse is moving', currentPosition.x +' '+ currentPosition.y);
+    socket.emit('mousemove', currentPosition);
     context.lineTo(currentPosition.x, currentPosition.y);
     context.stroke();
     storeDrawn(
@@ -164,15 +168,18 @@ canvas.addEventListener('mousemove', (event) => {
       currentColor,
       isEraser,
     );
+    
   } else {
     storeDrawn(undefined);
+    
   }
+   //socket.emit("mousemove", event);
 });
 
 // Mouse Up
 canvas.addEventListener('mouseup', () => {
   isMouseDown = false;
-  console.log('mouse is unclicked');
+  //console.log('mouse is unclicked');
 });
 
 // Save to Local Storage
